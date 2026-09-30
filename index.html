@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACAB — Nouvelle fiche lieu</title>
+<style>
+  :root {
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: #000000;
+    color: #22c55e;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 24px 16px 60px;
+    display: flex;
+    justify-content: center;
+  }
+  .card {
+    width: 100%;
+    max-width: 480px;
+    background: #000000;
+    border-radius: 12px;
+    border: 0.5px solid #22c55e33;
+    padding: 1.5rem;
+  }
+  h1 {
+    font-weight: 500;
+    font-size: 18px;
+    margin: 0 0 4px;
+    color: #22c55e;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: #22c55e99;
+    margin: 0 0 1.5rem;
+  }
+  label.field-label {
+    font-size: 13px;
+    color: #22c55e99;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .field { margin-bottom: 1rem; position: relative; }
+  input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="date"], select, textarea {
+    width: 100%;
+    background: #0a0a0a;
+    color: #22c55e;
+    border: 1px solid #22c55e44;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  textarea { min-height: 70px; resize: vertical; }
+  select { appearance: none; }
+  .checkbox-group { display: flex; flex-direction: column; gap: 8px; }
+  .checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+  .checkbox-group input[type="checkbox"] { accent-color: #22c55e; width: 16px; height: 16px; }
+  .hint { color: #22c55e66; font-size: 12px; font-weight: 400; }
+  .toggle-row { display: flex; gap: 8px; }
+  .toggle-btn {
+    flex: 1;
+    font-size: 13px;
+    background: #0a0a0a;
+    color: #22c55e;
+    border: 1px solid #22c55e44;
+    border-radius: 6px;
+    padding: 10px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .toggle-btn.selected { background: #22c55e22; border-color: #22c55e; }
+  .toggle-btn.verdict-yes { border-color: #22c55e88; }
+  .toggle-btn.verdict-yes.selected { background: #22c55e; color: #000000; font-weight: 600; border-color: #22c55e; }
+  .toggle-btn.verdict-no { border-color: #ef444488; color: #ef4444; }
+  .toggle-btn.verdict-no.selected { background: #ef4444; color: #000000; font-weight: 600; border-color: #ef4444; }
+  .toggle-btn.verdict-neutral {
+    width: 100%;
+    margin-top: 8px;
+    color: #22c55e99;
+    border-color: #22c55e33;
+  }
+  .toggle-btn.verdict-neutral.selected { background: #22c55e99; color: #000000; font-weight: 600; border-color: #22c55e99; }
+  .section-title {
+    font-size: 13px;
+    font-weight: 500;
+    margin: 0 0 10px;
+    color: #22c55e99;
+  }
+  .section-divider {
+    border-top: 0.5px solid #22c55e33;
+    margin: 1.5rem 0 1rem;
+    padding-top: 1rem;
+  }
+  .submit-btn {
+    width: 100%;
+    margin-top: 8px;
+    background: #0a0a0a;
+    color: #22c55e;
+    border: 1px solid #22c55e;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #0a0a0a;
+    border: 1px solid #22c55e44;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    z-index: 5;
+    display: none;
+  }
+  .suggestions.open { display: block; }
+  .suggestions div {
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 1px solid #22c55e22;
+  }
+  .suggestions div:last-child { border-bottom: none; }
+  .suggestions div:hover { background: #22c55e22; }
+  .suggestions .city { color: #22c55e77; }
+  .note {
+    font-size: 11px;
+    color: #22c55e55;
+    text-align: center;
+    margin-top: 1.25rem;
+  }
+  .screen { display: none; }
+  .screen.active { display: flex; justify-content: center; }
+  .gate-title {
+    text-align: center;
+    margin: 0 0 2rem;
+  }
+  .gate-title-big {
+    display: block;
+    font-weight: 700;
+    font-size: 36px;
+    letter-spacing: 2px;
+  }
+  .gate-title-small {
+    display: block;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 13px;
+    color: #22c55e99;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+  .gate-error {
+    font-size: 13px;
+    color: #ef4444;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+  }
+  .gate-error.show { display: block; }
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 50;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: #0a0a0a;
+    border: 1px solid #ef444466;
+    border-radius: 12px;
+    padding: 1.25rem;
+    max-width: 400px;
+    width: 100%;
+  }
+  .modal-title { font-size: 15px; font-weight: 600; color: #ef4444; margin: 0 0 10px; }
+  .modal-row { display: flex; gap: 8px; margin-top: 14px; }
+  .modal-btn { flex: 1; border-radius: 6px; padding: 10px; font-size: 13px; font-family: inherit; cursor: pointer; }
+  .modal-btn.cancel { background: #0a0a0a; color: #22c55e99; border: 1px solid #22c55e33; }
+  .modal-btn.confirm { background: #ef4444; color: #000; border: 1px solid #ef4444; font-weight: 600; }
+  .home-btn {
+    width: 100%;
+    background: #0a0a0a;
+    color: #22c55e;
+    border: 1px solid #22c55e;
+    border-radius: 8px;
+    padding: 18px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    margin-bottom: 14px;
+  }
+  .home-btn:disabled { opacity: 0.4; cursor: default; }
+  .back-link {
+    display: inline-block;
+    color: #22c55e77;
+    font-size: 13px;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+    padding: 0;
+  }
+  .result-card {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #0a0a0a;
+    border: 1px solid #22c55e33;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+  }
+  .result-info { display: flex; flex-direction: column; gap: 3px; }
+  .result-name { font-size: 14px; font-weight: 600; color: #22c55e; }
+  .result-meta { font-size: 12px; color: #22c55e77; }
+  .result-badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    border: 1px solid #22c55e44;
+    color: #22c55e99;
+    white-space: nowrap;
+  }
+  .verdict-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .verdict-dot.green { background: #22c55e; }
+  .verdict-dot.red { background: #ef4444; }
+  .verdict-dot.none { background: #22c55e22; border: 1px solid #22c55e44; }
+  .detail-title { font-size: 20px; font-weight: 600; margin: 0 0 2px; }
+  .detail-city { font-size: 14px; color: #22c55e99; margin: 0 0 0.75rem; }
+  .info-row { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-bottom: 1px solid #22c55e1a; font-size: 13px; }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { color: #22c55e77; }
+  .info-value { text-align: right; color: #22c55e; }
+  .info-value a { color: #22c55e; text-decoration: underline; text-decoration-color: #22c55e55; }
+  .history-entry { background: #0a0a0a; border: 1px solid #22c55e33; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+  .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .history-date { font-size: 12px; color: #22c55e77; }
+  .history-verdict { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+  .history-verdict.green { background: #22c55e; color: #000; }
+  .history-verdict.red { background: #ef4444; color: #000; }
+  .history-verdict.none { background: #22c55e22; color: #22c55e99; }
+  .history-note { font-size: 13px; color: #22c55ecc; line-height: 1.4; }
+  .trash-entry { background: #0a0a0a; border: 1px solid #ef444444; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+  .trash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .trash-name { font-size: 14px; font-weight: 600; }
+  .trash-meta { font-size: 11px; color: #22c55e77; margin-bottom: 8px; }
+  .trash-delete-btn { width: 100%; background: #0a0a0a; color: #ef4444; border: 1px solid #ef4444; border-radius: 6px; padding: 8px; font-size: 12px; font-family: inherit; cursor: pointer; }
+  .trash-restore-btn { width: 100%; background: #0a0a0a; color: #22c55e; border: 1px solid #22c55e; border-radius: 6px; padding: 8px; font-size: 12px; font-family: inherit; cursor: pointer; }
+</style>
+</head>
+<body>
+
+  <!-- ÉCRAN 7 : sauvegarde (accès via code "sauvegarde") -->
+  <div class="screen" id="screen-backup">
+    <div class="card">
+      <button type="button" class="back-link" id="back-to-gate-2">&larr; Retour</button>
+      <p class="detail-title">Sauvegarde</p>
+      <p class="detail-city">Export complet de toutes les fiches de la base</p>
+      <button type="button" class="home-btn" id="btn-download-backup">Télécharger toutes les fiches</button>
+      <p class="note" style="margin-top: 1rem;">Format JSON — inclut chaque lieu et son historique complet</p>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 6 : corbeille (accès via code "poubelle") -->
+  <div class="screen" id="screen-trash">
+    <div class="card">
+      <button type="button" class="back-link" id="back-to-gate">&larr; Retour</button>
+      <p class="detail-title" style="color: #ef4444;">Poubelle</p>
+      <p class="detail-city" id="trash-status">Fiches et avis supprimés — suppression définitive possible</p>
+
+      <div id="trash-list"></div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 5 : fiche complète -->
+  <div class="screen" id="screen-detail">
+    <div class="card">
+      <button type="button" class="back-link" id="back-to-results">&larr; Retour</button>
+      <p class="detail-title" id="detail-trash-banner" style="display:none; color:#ef4444; font-size:12px; font-weight:600; text-transform:uppercase; margin-bottom:8px;">Fiche supprimée</p>
+      <p class="detail-title" id="detail-nom">—</p>
+      <p class="detail-city" id="detail-ville-type">—</p>
+
+      <div id="detail-info-rows"></div>
+
+      <div class="section-divider" style="margin-top: 0.75rem;">
+        <p class="section-title">Historique des passages</p>
+        <div id="detail-historique"></div>
+      </div>
+
+      <div class="section-divider" id="detail-actions" style="display:none;">
+        <button type="button" class="home-btn" id="btn-search-from-here" style="margin-bottom: 10px;">Chercher à partir de ce lieu</button>
+        <button type="button" class="home-btn" id="btn-played-here-too" style="margin-bottom: 10px;">Moi aussi j'ai joué ici</button>
+        <button type="button" class="home-btn" id="btn-edit-fiche" style="margin-bottom: 10px;">Modifier la fiche</button>
+        <button type="button" class="home-btn" id="btn-delete-fiche" style="color: #ef4444; border-color: #ef4444;">Supprimer la fiche</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 1 : code d'accès -->
+  <div class="screen active" id="screen-gate">
+    <div class="card">
+      <p class="gate-title"><span class="gate-title-big">A.C.A.B.</span><span class="gate-title-small">Alternative Coopérative<br>et Autogérée de Booking</span></p>
+      <div class="field">
+        <label class="field-label">Code d'accès</label>
+        <input type="password" id="code-input" placeholder="Code d'accès">
+      </div>
+      <button type="button" class="submit-btn" id="code-submit">Entrer</button>
+      <p class="gate-error" id="code-error">Code incorrect</p>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 4 : résultats de recherche -->
+  <div class="screen" id="screen-results">
+    <div class="card">
+      <button type="button" class="home-btn" id="btn-entrer-lieu" style="margin-bottom: 1.25rem;">Entrer un nouveau lieu</button>
+      <h1 style="margin-bottom: 1rem;">Chercher un lieu</h1>
+
+      <div class="field">
+        <label class="field-label">Ville, lieu ou orga</label>
+        <input type="text" id="search-input" placeholder="Ex: Rennes, Le Sous-Sol..." autocomplete="off">
+        <div class="suggestions" id="search-suggestions"></div>
+      </div>
+
+      <button type="button" id="btn-toggle-filtres" style="width:100%; background:#0a0a0a; color:#22c55e99; border:1px solid #22c55e33; border-radius:6px; padding:8px; font-size:12px; font-family:inherit; cursor:pointer; margin-bottom:10px;">Filtres <span id="filtres-count"></span> ▾</button>
+
+      <div id="panel-filtres" style="display:none; background:#0a0a0a; border:1px solid #22c55e33; border-radius:8px; padding:12px; margin-bottom:12px;">
+        <p class="section-title">Type de lieu</p>
+        <div class="checkbox-group filtre-type-lieu" style="margin-bottom:10px;">
+          <label><input type="checkbox" value="Salle"> Salle</label>
+          <label><input type="checkbox" value="Festival"> Festival</label>
+          <label><input type="checkbox" value="Bar"> Bar</label>
+          <label><input type="checkbox" value="MJC"> MJC</label>
+          <label><input type="checkbox" value="Squat"> Squat</label>
+          <label><input type="checkbox" value="Autre"> Autre</label>
+        </div>
+
+        <p class="section-title">Verdict</p>
+        <div class="checkbox-group filtre-verdict" style="margin-bottom:10px;">
+          <label><input type="checkbox" value="green"> Vas-y fonce !</label>
+          <label><input type="checkbox" value="red"> À boycotter</label>
+          <label><input type="checkbox" value="none"> Rien à signaler</label>
+        </div>
+
+        <p class="section-title">Cachet</p>
+        <div class="checkbox-group filtre-cachet" style="margin-bottom:10px;">
+          <label><input type="checkbox" value="Fixe"> Fixe</label>
+          <label><input type="checkbox" value="Pourcentage billetterie"> Pourcentage billetterie</label>
+          <label><input type="checkbox" value="Chapeau"> Chapeau</label>
+          <label><input type="checkbox" value="Défraiement seulement"> Défraiement seulement</label>
+          <label><input type="checkbox" value="Possibilité GUSO"> Possibilité GUSO</label>
+          <label><input type="checkbox" value="Rien"> Rien</label>
+          <label><input type="checkbox" value="À négocier"> À négocier</label>
+        </div>
+
+        <p class="section-title">Sur place</p>
+        <div class="checkbox-group" style="margin-bottom:10px;">
+          <label><input type="checkbox" id="filtre-sono"> Sono fournie</label>
+          <label><input type="checkbox" id="filtre-backline"> Backline disponible</label>
+          <label><input type="checkbox" id="filtre-technicien"> Technicien / régie présent</label>
+          <label><input type="checkbox" id="filtre-hebergement"> Hébergement proposé</label>
+          <label><input type="checkbox" id="filtre-repas"> Repas fourni</label>
+        </div>
+
+        <p class="section-title">Orga</p>
+        <div class="checkbox-group" style="margin-bottom:10px;">
+          <label><input type="checkbox" id="filtre-asso"> Géré par une association</label>
+          <label><input type="checkbox" id="filtre-orga-unique"> Orga gère uniquement ce lieu</label>
+        </div>
+
+        <button type="button" id="btn-reset-filtres" style="width:100%; background:#0a0a0a; color:#ef4444; border:1px solid #ef444444; border-radius:6px; padding:8px; font-size:12px; font-family:inherit; cursor:pointer;">Réinitialiser les filtres</button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin: 4px 0 12px;">
+        <p class="result-meta" style="margin:0;" id="results-status">Chargement...</p>
+        <button type="button" id="btn-refresh-results" style="flex-shrink:0; background:#0a0a0a; color:#22c55e; border:1px solid #22c55e44; border-radius:6px; padding:5px 10px; font-size:12px; font-family:inherit; cursor:pointer;">Actualiser</button>
+      </div>
+
+      <div id="results-list"></div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 3 : formulaire -->
+  <div class="screen" id="screen-form">
+   <div class="card">
+    <button type="button" class="back-link" id="back-to-home">&larr; Retour</button>
+    <h1>Nouvelle fiche lieu</h1>
+    <p class="subtitle">Tous les champs sont facultatifs — ACAB</p>
+
+    <div class="field">
+      <label class="field-label">Nom du lieu</label>
+      <input type="text" id="nom-lieu" placeholder="Ex: Le Sous-Sol..." autocomplete="off">
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Adresse</label>
+      <input type="text" id="f-adresse" placeholder="Commencez à taper une adresse..." autocomplete="off">
+      <div class="suggestions" id="f-adresse-suggestions"></div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Nom de l'orga</label>
+      <input type="text" id="f-orga" placeholder="Nom de l'organisation qui gère le lieu">
+    </div>
+
+    <div class="field">
+      <div class="checkbox-group">
+        <label><input type="checkbox" id="f-orga-unique"> Lieu géré uniquement par cette orga</label>
+        <label><input type="checkbox" id="f-asso"> Asso</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Type de lieu</label>
+      <select id="f-type-lieu">
+        <option>Salle</option>
+        <option>Festival</option>
+        <option>Bar</option>
+        <option>MJC</option>
+        <option>Squat</option>
+        <option>Autre</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Contact mail</label>
+      <input type="email" id="f-mail" placeholder="nom@exemple.fr">
+    </div>
+    <div class="field">
+      <label class="field-label">Téléphone</label>
+      <input type="tel" id="f-tel" placeholder="06 00 00 00 00">
+    </div>
+    <div class="field">
+      <label class="field-label">Réseaux sociaux</label>
+      <input type="text" id="f-reseaux" placeholder="Lien Instagram, Facebook...">
+    </div>
+    <div class="field">
+      <label class="field-label">Nom du/des programmateurs</label>
+      <input type="text" id="f-programmateur" placeholder="Prénom Nom">
+    </div>
+
+    <div id="section-avis-1">
+      <div class="field">
+        <label class="field-label">Qui a initié le contact ?</label>
+        <div class="toggle-row" id="f-qui-initie-group">
+          <button type="button" class="toggle-btn" data-value="Programmateur">Programmateur</button>
+          <button type="button" class="toggle-btn" data-value="Groupe">Groupe</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Nombre de groupes dans la soirée</label>
+        <input type="number" id="f-nb-groupes" placeholder="3">
+      </div>
+
+      <div class="field">
+        <label class="field-label">Type de cachet <span class="hint">(plusieurs choix possibles)</span></label>
+        <div class="checkbox-group" id="f-cachet-group">
+          <label><input type="checkbox" value="Fixe"> Fixe</label>
+          <label><input type="checkbox" value="Pourcentage billetterie"> Pourcentage billetterie</label>
+          <label><input type="checkbox" value="Chapeau"> Chapeau</label>
+          <label><input type="checkbox" value="Défraiement seulement"> Défraiement seulement</label>
+          <label><input type="checkbox" value="Possibilité GUSO"> Possibilité GUSO</label>
+          <label><input type="checkbox" value="Rien"> Rien</label>
+          <label><input type="checkbox" value="À négocier"> À négocier</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider">
+      <p class="section-title">Technique et logistique</p>
+      <div class="checkbox-group" style="margin-bottom: 10px;">
+        <label><input type="checkbox" id="f-sono"> Sono fournie</label>
+        <label><input type="checkbox" id="backline-check"> Backline disponible <span class="hint">(batterie, ampli, etc)</span></label>
+        <input type="text" id="backline-detail" placeholder="Précisez ce qu'il y avait..." style="display:none; margin-top: -2px;">
+        <label><input type="checkbox" id="f-technicien"> Technicien / régie présent</label>
+        <label><input type="checkbox" id="f-hebergement"> Hébergement proposé</label>
+        <label><input type="checkbox" id="f-repas"> Repas fourni</label>
+      </div>
+      <div class="field">
+        <label class="field-label">Accès / déchargement</label>
+        <input type="text" id="f-acces" placeholder="Ex: parking limité, accès par l'arrière...">
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <div class="field">
+          <label class="field-label">Capacité / jauge</label>
+          <input type="number" id="f-capacite" placeholder="150">
+        </div>
+        <div class="field" id="section-date-passage">
+          <label class="field-label">Date de passage</label>
+          <input type="date" id="f-date">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider" id="section-avis-2">
+      <p class="section-title">Ressenti</p>
+      <div class="field">
+        <label class="field-label">Verdict global</label>
+        <div class="toggle-row" id="verdict-group">
+          <button type="button" class="toggle-btn verdict-yes" data-value="Vas-y fonce !">Vas-y fonce !</button>
+          <button type="button" class="toggle-btn verdict-no" data-value="À boycotter">À boycotter</button>
+        </div>
+        <button type="button" class="toggle-btn verdict-neutral" data-value="Rien à signaler">Rien à signaler</button>
+      </div>
+      <div class="field">
+        <label class="field-label">Conseils / pièges à éviter</label>
+        <textarea id="f-conseils" placeholder="Tout ce qui pourrait aider le prochain groupe..."></textarea>
+      </div>
+    </div>
+
+    <p class="note" id="edit-only-banner" style="display:none; color:#22c55e99; text-align:left; margin-bottom:10px;">Modification des infos du lieu uniquement — aucun nouveau passage n'est ajouté à l'historique.</p>
+    <button type="button" class="submit-btn" id="btn-envoyer-fiche">Envoyer la fiche</button>
+    <p class="note" id="envoi-statut" style="display:none;"></p>
+
+    <p class="note">Connecté à la vraie base Supabase</p>
+   </div>
+  </div>
+
+  <!-- Modale : motif de suppression d'une fiche -->
+  <div class="modal-overlay" id="modal-delete-fiche">
+    <div class="modal-box">
+      <p class="modal-title">Supprimer la fiche</p>
+      <p class="detail-city" style="margin-bottom:8px;">Pour quel motif ?</p>
+      <textarea id="modal-delete-motif" placeholder="Ex: doublon, lieu fermé, erreur de saisie..." style="width:100%; min-height:70px; resize:vertical; background:#000; color:#22c55e; border:1px solid #22c55e44; border-radius:6px; padding:8px 10px; font-family:inherit; font-size:14px;"></textarea>
+      <div class="modal-row">
+        <button type="button" class="modal-btn cancel" id="modal-delete-cancel">Ne pas supprimer</button>
+        <button type="button" class="modal-btn confirm" id="modal-delete-confirm">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    // Connexion à la vraie base Supabase
+    const SUPABASE_URL = 'https://aapqaqgxthcoqpdgfdmg.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_g_rOCzhHB--Zv5gpNOryzQ_NJggWru0';
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Navigation entre écrans : une pile manuelle sert de base fiable partout ;
+    // on tente en plus de la synchroniser avec l'historique du navigateur (pour le bouton retour natif),
+    // mais jamais au prix de casser le reste si cette API est indisponible/restreinte.
+    const screens = { gate: document.getElementById('screen-gate'), form: document.getElementById('screen-form'), results: document.getElementById('screen-results'), detail: document.getElementById('screen-detail'), trash: document.getElementById('screen-trash'), backup: document.getElementById('screen-backup') };
+    const navStack = ['gate'];
+
+    // Remet le formulaire à blanc (à chaque ouverture : un nouveau lieu ne doit jamais hériter de la saisie précédente)
+    function resetForm() {
+      const formEl = document.getElementById('screen-form');
+      formEl.querySelectorAll('input').forEach(el => {
+        if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
+        else el.value = '';
+      });
+      formEl.querySelectorAll('textarea').forEach(el => { el.value = ''; });
+      formEl.querySelectorAll('select').forEach(el => { el.selectedIndex = 0; });
+      formEl.querySelectorAll('.toggle-btn.selected').forEach(el => el.classList.remove('selected'));
+      formEl.querySelectorAll('.suggestions').forEach(el => { el.classList.remove('open'); el.innerHTML = ''; });
+      document.getElementById('backline-detail').style.display = 'none';
+    }
+    function applyScreen(name) {
+      Object.values(screens).forEach(s => s.classList.remove('active'));
+      screens[name].classList.add('active');
+      if (name === 'gate') {
+        document.getElementById('code-input').value = '';
+        document.getElementById('code-error').classList.remove('show');
+      }
+      if (name === 'results' && resultsDirty) {
+        resultsDirty = false;
+        fetchResults(searchInput.value, searchRefPoint);
+      }
+      if (name === 'form') {
+        resetForm();
+        const btn = document.getElementById('btn-envoyer-fiche');
+        btn.disabled = false;
+        btn.textContent = 'Envoyer la fiche';
+        document.getElementById('envoi-statut').style.display = 'none';
+        geoLat = null; geoLon = null; geoVille = null; geoDept = null;
+        editingLieuId = null;
+        editOnlyMode = false;
+        applyFormMode();
+      }
+    }
+    // Affiche/masque les champs propres à un passage (qui a initié, cachet, nb de groupes, date, ressenti)
+    // selon qu'on est en train de créer/ajouter un avis, ou de simplement corriger les infos du lieu
+    function applyFormMode() {
+      const display = editOnlyMode ? 'none' : '';
+      document.getElementById('section-avis-1').style.display = display;
+      document.getElementById('section-date-passage').style.display = display;
+      document.getElementById('section-avis-2').style.display = display;
+      document.getElementById('edit-only-banner').style.display = editOnlyMode ? 'block' : 'none';
+    }
+    function showScreen(name) {
+      navStack.push(name);
+      applyScreen(name);
+      try { history.pushState({ screen: name }, '', '#' + name); } catch (e) { /* API indisponible ici, tant pis */ }
+    }
+    function goBack() {
+      if (navStack.length > 1) {
+        navStack.pop();
+        applyScreen(navStack[navStack.length - 1]);
+      }
+      try { history.back(); } catch (e) { /* API indisponible ici, tant pis */ }
+    }
+    try { history.replaceState({ screen: 'gate' }, '', '#gate'); } catch (e) { /* pas grave, la pile manuelle prend le relais */ }
+    // Le bouton retour natif (ou le geste retour), quand il est supporté, déclenche cet événement
+    window.addEventListener('popstate', (e) => {
+      const name = (e.state && e.state.screen) || 'gate';
+      applyScreen(name);
+      const idx = navStack.lastIndexOf(name);
+      if (idx !== -1) navStack.length = idx + 1; else navStack.push(name);
+    });
+
+    const CODE = 'vivelanarchie';
+    const CODE_TRASH = 'poubelle';
+    const CODE_BACKUP = 'sauvegarde';
+    document.getElementById('code-submit').addEventListener('click', checkCode);
+    document.getElementById('code-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') checkCode(); });
+    function checkCode() {
+      const val = document.getElementById('code-input').value.trim().toLowerCase();
+      if (val === CODE) {
+        document.getElementById('code-error').classList.remove('show');
+        showScreen('results');
+      } else if (val === CODE_TRASH) {
+        document.getElementById('code-error').classList.remove('show');
+        showScreen('trash');
+        fetchTrash();
+      } else if (val === CODE_BACKUP) {
+        document.getElementById('code-error').classList.remove('show');
+        showScreen('backup');
+      } else {
+        document.getElementById('code-error').classList.add('show');
+      }
+    }
+    document.getElementById('back-to-gate-2').addEventListener('click', goBack);
+    document.getElementById('btn-entrer-lieu').addEventListener('click', () => showScreen('form'));
+    document.getElementById('back-to-home').addEventListener('click', goBack);
+    document.getElementById('back-to-gate').addEventListener('click', goBack);
+    document.getElementById('back-to-results').addEventListener('click', goBack);
+
+    // "Sauvegarde" : export complet des fiches (démo avec les données d'exemple de la maquette)
+    const BACKUP_DATA = {
+      export_date: new Date().toISOString().slice(0, 10),
+      lieux: [
+        {
+          nom: "Le Sous-Sol", ville: "Rennes", adresse: "12 rue des Chants, Rennes",
+          orga: "Collectif Sous-Sol (asso)", contact_mail: "contact@sous-sol.fr", programmateur: "Julien",
+          cachet: ["Fixe", "Chapeau"], sono: true, backline: "Batterie, amplis",
+          hebergement: true, repas: true, capacite: 150,
+          historique: [
+            { date: "2026-03-14", verdict: "Vas-y fonce !", note: "Super accueil, sono nickel. Arriver avant 18h pour se garer facilement." },
+            { date: "2025-11-02", verdict: "Rien à signaler", note: "Correct sans plus, peu de public ce soir-là." }
+          ]
+        },
+        { nom: "La Cave à Punk", ville: "Nantes", verdict: "à boycotter" },
+        { nom: "MJC des Trois Chênes", ville: "Vannes", verdict: "rien à signaler" }
+      ]
+    };
+    document.getElementById('btn-download-backup').addEventListener('click', async () => {
+      const filename = 'acabooking-sauvegarde-' + BACKUP_DATA.export_date + '.json';
+      const data = JSON.stringify(BACKUP_DATA, null, 2);
+      // 1) Tentative via la capacité de téléchargement de l'artefact publié, si disponible
+      try {
+        if (window.claude && typeof window.claude.use === 'function') {
+          const downloads = await window.claude.use('downloads');
+          if (downloads) {
+            await downloads.save({ filename, data });
+            return;
+          }
+        }
+      } catch (e) { /* on tente le repli ci-dessous */ }
+      // 2) Repli classique (fonctionne dans un navigateur normal hors visionneuse restreinte)
+      try {
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+      } catch (e) {
+        alert("Téléchargement indisponible dans cet environnement.");
+      }
+    });
+
+    // Backline : afficher le champ de précision quand la case est cochée
+    document.getElementById('backline-check').addEventListener('change', (e) => {
+      document.getElementById('backline-detail').style.display = e.target.checked ? 'block' : 'none';
+    });
+
+    // Autocomplétion d'adresse réelle (API Adresse du gouvernement, gratuite, sans clé)
+    function wireAddressAutocomplete(inputEl, suggestionsEl, onSelect) {
+      let debounce;
+      inputEl.addEventListener('input', () => {
+        // Toute frappe manuelle invalide la sélection précédente : on ne veut pas
+        // garder des coordonnées GPS qui ne correspondent plus au texte affiché
+        onSelect(null);
+        clearTimeout(debounce);
+        const q = inputEl.value.trim();
+        if (q.length < 3) { suggestionsEl.classList.remove('open'); return; }
+        debounce = setTimeout(async () => {
+          try {
+            const res = await fetch('https://api-adresse.data.gouv.fr/search/?q=' + encodeURIComponent(q) + '&limit=5');
+            const json = await res.json();
+            const feats = json.features || [];
+            if (feats.length === 0) { suggestionsEl.classList.remove('open'); return; }
+            suggestionsEl.innerHTML = feats.map((f, i) => `<div data-index="${i}">${escapeHtml(f.properties.label)}</div>`).join('');
+            suggestionsEl.classList.add('open');
+            suggestionsEl.querySelectorAll('div').forEach((div, i) => {
+              div.addEventListener('click', () => {
+                const f = feats[i];
+                inputEl.value = f.properties.label;
+                suggestionsEl.classList.remove('open');
+                onSelect({
+                  lat: f.geometry.coordinates[1],
+                  lon: f.geometry.coordinates[0],
+                  ville: f.properties.city || null,
+                  departement: f.properties.context ? f.properties.context.split(',')[0].trim() : null
+                });
+              });
+            });
+          } catch (e) { /* pas de suggestion en cas d'échec réseau, pas bloquant */ }
+        }, 300);
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#' + inputEl.id) && !e.target.closest('#' + suggestionsEl.id)) {
+          suggestionsEl.classList.remove('open');
+        }
+      });
+    }
+    wireAddressAutocomplete(
+      document.getElementById('f-adresse'),
+      document.getElementById('f-adresse-suggestions'),
+      (geo) => {
+        if (geo) { geoLat = geo.lat; geoLon = geo.lon; geoVille = geo.ville; geoDept = geo.departement; }
+        else { geoLat = null; geoLon = null; geoVille = null; geoDept = null; }
+      }
+    );
+
+    // Poubelle : chargement des vraies fiches supprimées (soft delete)
+    async function fetchTrash() {
+      const statusEl = document.getElementById('trash-status');
+      statusEl.textContent = 'Chargement...';
+      try {
+        const { data, error } = await db.from('lieux').select('*').eq('supprime', true).order('cree_le', { ascending: false });
+        if (error) throw error;
+        renderTrash(data);
+      } catch (e) {
+        statusEl.textContent = 'Erreur : ' + (e.message || 'inconnue');
+      }
+    }
+    function renderTrash(lieux) {
+      const list = document.getElementById('trash-list');
+      const statusEl = document.getElementById('trash-status');
+      if (!lieux || lieux.length === 0) {
+        list.innerHTML = '';
+        statusEl.textContent = 'Aucune fiche supprimée pour le moment.';
+        return;
+      }
+      statusEl.textContent = lieux.length + ' fiche(s) supprimée(s) — suppression définitive possible';
+      list.innerHTML = lieux.map(lieu => `
+        <div class="trash-entry" data-lieu-id="${lieu.id}">
+          <div class="trash-header">
+            <span class="trash-name" style="cursor:pointer; text-decoration:underline; text-decoration-color:#ef444466;" data-open-detail="true">${escapeHtml(lieu.nom || '(sans nom)')} <span class="hint">(${escapeHtml(lieu.ville || lieu.adresse || '')})</span></span>
+          </div>
+          <p class="trash-meta">${lieu.motif_suppression ? 'Motif : ' + escapeHtml(lieu.motif_suppression) : 'Fiche entière — aucun motif indiqué'}</p>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="trash-restore-btn" style="flex:1;">Remettre en service</button>
+            <button type="button" class="trash-delete-btn" style="flex:1;">Supprimer définitivement</button>
+          </div>
+        </div>`).join('');
+    }
+    document.getElementById('trash-list').addEventListener('click', async (e) => {
+      const entry = e.target.closest('.trash-entry');
+      if (!entry) return;
+      const lieuId = entry.dataset.lieuId;
+
+      if (e.target.closest('.trash-delete-btn')) {
+        if (confirm('Supprimer définitivement, sans retour possible ?')) {
+          try {
+            const { error } = await db.from('lieux').delete().eq('id', lieuId);
+            if (error) throw error;
+            fetchTrash();
+          } catch (err) {
+            alert('Erreur : ' + (err.message || 'échec de la suppression'));
+          }
+        }
+        return;
+      }
+      if (e.target.closest('.trash-restore-btn')) {
+        if (confirm('Remettre cette fiche en service ? Elle redeviendra visible pour tous les adhérents.')) {
+          try {
+            const { error } = await db.from('lieux').update({ supprime: false, motif_suppression: null }).eq('id', lieuId);
+            if (error) throw error;
+            fetchTrash();
+          } catch (err) {
+            alert('Erreur : ' + (err.message || 'échec de la restauration'));
+          }
+        }
+        return;
+      }
+      if (e.target.closest('[data-open-detail]')) {
+        document.getElementById('detail-trash-banner').style.display = 'block';
+        showScreen('detail');
+        renderDetail(lieuId);
+      }
+    });
+
+    // Envoi réel du formulaire vers Supabase
+    function getSelectedValue(containerId) {
+      const el = document.querySelector('#' + containerId + ' .toggle-btn.selected');
+      return el ? el.dataset.value : null;
+    }
+    function getVerdict() {
+      const el = document.querySelector('#verdict-group .toggle-btn.selected, .toggle-btn.verdict-neutral.selected');
+      return el ? el.dataset.value : null;
+    }
+    function getCachets() {
+      return Array.from(document.querySelectorAll('#f-cachet-group input[type=checkbox]:checked')).map(c => c.value);
+    }
+    document.getElementById('btn-envoyer-fiche').addEventListener('click', async () => {
+      const btn = document.getElementById('btn-envoyer-fiche');
+      const statutEl = document.getElementById('envoi-statut');
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours...';
+      statutEl.style.display = 'block';
+      statutEl.textContent = '';
+
+      const lieuData = {
+        nom: document.getElementById('nom-lieu').value || null,
+        adresse: document.getElementById('f-adresse').value || null,
+        type_lieu: document.getElementById('f-type-lieu').value || null,
+        nom_orga: document.getElementById('f-orga').value || null,
+        gere_uniquement_par_orga: document.getElementById('f-orga-unique').checked,
+        est_asso: document.getElementById('f-asso').checked,
+        contact_mail: document.getElementById('f-mail').value || null,
+        contact_tel: document.getElementById('f-tel').value || null,
+        reseaux_sociaux: document.getElementById('f-reseaux').value || null,
+        programmateur: document.getElementById('f-programmateur').value || null,
+        sono_fournie: document.getElementById('f-sono').checked,
+        backline_disponible: document.getElementById('backline-check').checked,
+        backline_detail: document.getElementById('backline-detail').value || null,
+        technicien: document.getElementById('f-technicien').checked,
+        acces_dechargement: document.getElementById('f-acces').value || null,
+        hebergement: document.getElementById('f-hebergement').checked,
+        repas: document.getElementById('f-repas').checked,
+        capacite: document.getElementById('f-capacite').value ? parseInt(document.getElementById('f-capacite').value, 10) : null,
+        latitude: geoLat,
+        longitude: geoLon,
+        ville: geoVille,
+        departement: geoDept
+      };
+
+      try {
+        const { data: lieu, error: erreurLieu } = editingLieuId
+          ? await db.from('lieux').update(lieuData).eq('id', editingLieuId).select().single()
+          : await db.from('lieux').insert(lieuData).select().single();
+        if (erreurLieu) throw erreurLieu;
+
+        if (!editOnlyMode) {
+          const avisData = {
+            lieu_id: lieu.id,
+            date_passage: document.getElementById('f-date').value || null,
+            qui_a_initie: getSelectedValue('f-qui-initie-group'),
+            nombre_groupes_soiree: document.getElementById('f-nb-groupes').value ? parseInt(document.getElementById('f-nb-groupes').value, 10) : null,
+            type_cachet: getCachets(),
+            verdict: getVerdict(),
+            conseils: document.getElementById('f-conseils').value || null
+          };
+          const { data: avis, error: erreurAvis } = await db.from('avis').insert(avisData).select().single();
+          if (erreurAvis) throw erreurAvis;
+          if (avis && avis.id) sessionAvisIds.add(avis.id);
+        }
+        resultsDirty = true;
+
+        // Fiche enregistrée : direction la fiche en lecture seule, pour éviter tout nouveau clic accidentel sur "Envoyer".
+        // On retire le formulaire de la pile de navigation : "Retour" depuis la fiche ramène ainsi à la recherche
+        // (ou à la fiche d'origine si on venait de "Moi aussi j'ai joué ici"), jamais au formulaire.
+        navStack.pop();
+        if (navStack[navStack.length - 1] === 'detail') {
+          applyScreen('detail');
+          try { history.back(); } catch (e) { /* pile manuelle déjà à jour */ }
+        } else {
+          navStack.push('detail');
+          applyScreen('detail');
+          try { history.replaceState({ screen: 'detail' }, '', '#detail'); } catch (e) { /* pile manuelle déjà à jour */ }
+        }
+        document.getElementById('detail-trash-banner').style.display = 'none';
+        renderDetail(lieu.id);
+      } catch (e) {
+        statutEl.textContent = 'Erreur : ' + (e.message || 'échec de l\'enregistrement');
+        statutEl.style.color = '#ef4444';
+        btn.disabled = false;
+        btn.textContent = 'Envoyer la fiche';
+      }
+    });
+
+    // "Chercher à partir de ce lieu" : préremplit la recherche avec l'adresse du lieu et va aux résultats
+    document.getElementById('btn-search-from-here').addEventListener('click', () => {
+      showScreen('results');
+      if (currentLieuData && currentLieuData.latitude != null && currentLieuData.longitude != null) {
+        document.getElementById('search-input').value = currentLieuData.ville || currentLieuData.adresse || currentLieuData.nom || '';
+        searchRefPoint = { lat: currentLieuData.latitude, lon: currentLieuData.longitude };
+        fetchResults(null, searchRefPoint);
+      } else {
+        document.getElementById('search-input').value = currentLieuData ? (currentLieuData.adresse || currentLieuData.nom || '') : '';
+        searchRefPoint = null;
+        fetchResults(document.getElementById('search-input').value);
+      }
+    });
+
+    // Pré-remplit le formulaire avec les infos stables d'un lieu existant et passe en mode "mise à jour"
+    function prefillFormFromLieu(lieu) {
+      editingLieuId = lieu.id;
+      const set = (id, val) => { const el = document.getElementById(id); if (el && val !== null && val !== undefined) el.value = val; };
+      set('nom-lieu', lieu.nom);
+      set('f-adresse', lieu.adresse);
+      set('f-orga', lieu.nom_orga);
+      set('f-type-lieu', lieu.type_lieu);
+      set('f-mail', lieu.contact_mail);
+      set('f-tel', lieu.contact_tel);
+      set('f-reseaux', lieu.reseaux_sociaux);
+      set('f-programmateur', lieu.programmateur);
+      set('f-acces', lieu.acces_dechargement);
+      set('f-capacite', lieu.capacite);
+      document.getElementById('f-orga-unique').checked = !!lieu.gere_uniquement_par_orga;
+      document.getElementById('f-asso').checked = !!lieu.est_asso;
+      document.getElementById('f-sono').checked = !!lieu.sono_fournie;
+      document.getElementById('f-technicien').checked = !!lieu.technicien;
+      document.getElementById('f-hebergement').checked = !!lieu.hebergement;
+      document.getElementById('f-repas').checked = !!lieu.repas;
+      document.getElementById('backline-check').checked = !!lieu.backline_disponible;
+      document.getElementById('backline-detail').style.display = lieu.backline_disponible ? 'block' : 'none';
+      set('backline-detail', lieu.backline_detail);
+      // Le lieu est déjà géocodé : pas besoin de refaire une recherche d'adresse
+      geoLat = lieu.latitude ?? null;
+      geoLon = lieu.longitude ?? null;
+      geoVille = lieu.ville ?? null;
+      geoDept = lieu.departement ?? null;
+    }
+
+    // "Moi aussi j'ai joué ici" : ouvre le formulaire pré-rempli avec les infos stables du lieu
+    document.getElementById('btn-played-here-too').addEventListener('click', () => {
+      showScreen('form');
+      if (!currentLieuData) return;
+      prefillFormFromLieu(currentLieuData);
+    });
+
+    // "Modifier la fiche" : même formulaire pré-rempli, mais sans ajouter de passage à l'historique
+    document.getElementById('btn-edit-fiche').addEventListener('click', () => {
+      showScreen('form');
+      if (!currentLieuData) return;
+      prefillFormFromLieu(currentLieuData);
+      editOnlyMode = true;
+      applyFormMode();
+      document.getElementById('btn-envoyer-fiche').textContent = 'Enregistrer les modifications';
+    });
+
+    // "Supprimer la fiche" : ouvre la modale de motif, puis soft delete réel (récupérable depuis la Poubelle)
+    document.getElementById('btn-delete-fiche').addEventListener('click', () => {
+      if (!currentLieuId) return;
+      document.getElementById('modal-delete-motif').value = '';
+      document.getElementById('modal-delete-fiche').classList.add('open');
+    });
+    document.getElementById('modal-delete-cancel').addEventListener('click', () => {
+      document.getElementById('modal-delete-fiche').classList.remove('open');
+    });
+    document.getElementById('modal-delete-fiche').addEventListener('click', (e) => {
+      if (e.target.id === 'modal-delete-fiche') e.currentTarget.classList.remove('open');
+    });
+    document.getElementById('modal-delete-confirm').addEventListener('click', async () => {
+      const motif = document.getElementById('modal-delete-motif').value.trim() || null;
+      try {
+        const { error } = await db.from('lieux').update({ supprime: true, motif_suppression: motif }).eq('id', currentLieuId);
+        if (error) throw error;
+        document.getElementById('modal-delete-fiche').classList.remove('open');
+        showScreen('results');
+        fetchResults(document.getElementById('search-input').value);
+      } catch (e) {
+        alert('Erreur lors de la suppression : ' + (e.message || 'inconnue'));
+      }
+    });
+
+    // Suggestions réelles sur le nom du lieu : propose les fiches existantes qui ressemblent à ce qui est tapé
+    // (nom + ville). Cliquer sur une suggestion pré-remplit le formulaire et passe en mode mise à jour ;
+    // ignorer les suggestions et continuer à taper crée une nouvelle fiche.
+    const input = document.getElementById('nom-lieu');
+    const suggestions = document.getElementById('suggestions');
+    let nomDebounce;
+    input.addEventListener('input', () => {
+      // Modifier le nom à la main après avoir choisi une suggestion annule le mode mise à jour
+      // (on ne veut pas écraser une fiche existante par erreur)
+      if (editingLieuId) editingLieuId = null;
+      clearTimeout(nomDebounce);
+      const q = input.value.trim();
+      if (q.length < 2) { suggestions.classList.remove('open'); return; }
+      nomDebounce = setTimeout(async () => {
+        try {
+          const safe = q.replace(/[%,]/g, '');
+          const { data, error } = await db.from('lieux')
+            .select('*')
+            .eq('supprime', false)
+            .ilike('nom', '%' + safe + '%')
+            .limit(5);
+          if (error) throw error;
+          if (!data || data.length === 0) { suggestions.classList.remove('open'); return; }
+          suggestions.innerHTML = data.map((l, i) => `<div data-index="${i}">${escapeHtml(l.nom || '(sans nom)')} <span class="city">(${escapeHtml(l.ville || l.adresse || 'ville inconnue')})</span></div>`).join('');
+          suggestions.classList.add('open');
+          suggestions.querySelectorAll('div').forEach((div, i) => {
+            div.addEventListener('click', () => {
+              prefillFormFromLieu(data[i]);
+              suggestions.classList.remove('open');
+            });
+          });
+        } catch (e) { /* pas de suggestion en cas d'erreur, pas bloquant */ }
+      }, 300);
+    });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#nom-lieu') && !e.target.closest('#suggestions')) suggestions.classList.remove('open');
+    });
+
+    // Barre de recherche (ville / lieu / orga) : suggestions de villes réelles (API Adresse),
+    // sélectionner une ville déclenche un vrai tri par distance ; taper du texte libre garde
+    // le filtre classique par nom/adresse/ville/orga
+    const searchInput = document.getElementById('search-input');
+    const searchSuggestions = document.getElementById('search-suggestions');
+    let searchRefPoint = null;
+    wireAddressAutocomplete(searchInput, searchSuggestions, (geo) => {
+      if (geo) {
+        searchRefPoint = { lat: geo.lat, lon: geo.lon };
+        fetchResults(null, searchRefPoint);
+      } else {
+        searchRefPoint = null;
+      }
+    });
+
+    // Toggle button demo behavior (contact initiator, etc.)
+    document.querySelectorAll('.toggle-row .toggle-btn').forEach(btn => {
+      if (btn.closest('#verdict-group')) return; // handled separately below
+      btn.addEventListener('click', () => {
+        const row = btn.parentElement;
+        row.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+
+    // Verdict global : les 3 boutons (vas-y fonce / à boycotter / rien à signaler) sont mutuellement exclusifs
+    const verdictBtns = [
+      ...document.querySelectorAll('#verdict-group .toggle-btn'),
+      document.querySelector('.toggle-btn.verdict-neutral')
+    ];
+    verdictBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        verdictBtns.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+
+    // Recherche réelle des lieux dans Supabase
+    function escapeHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s == null ? '' : s;
+      return d.innerHTML;
+    }
+
+    // Fiche complète : chargement et affichage des vraies données d'un lieu
+    let currentLieuId = null;
+    let currentLieuData = null;
+    let editingLieuId = null; // si non-null, le formulaire met à jour ce lieu au lieu d'en créer un nouveau
+    let editOnlyMode = false; // si vrai, aucun avis n'est créé : on modifie juste les infos du lieu
+    const sessionAvisIds = new Set(); // ids des avis créés pendant cette session — supprimables uniquement ici, tant que la page n'a pas été rechargée
+    let resultsDirty = false; // vrai après un enregistrement : la liste de résultats doit être rechargée à la prochaine visite
+    let geoLat = null, geoLon = null, geoVille = null, geoDept = null;
+    function formatDateFr(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d)) return iso;
+      return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+    async function renderDetail(lieuId) {
+      document.getElementById('detail-nom').textContent = 'Chargement...';
+      document.getElementById('detail-ville-type').textContent = '';
+      document.getElementById('detail-info-rows').innerHTML = '';
+      document.getElementById('detail-historique').innerHTML = '';
+      document.getElementById('detail-actions').style.display = 'none';
+      try {
+        const { data: lieu, error } = await db.from('lieux').select('*, avis(*)').eq('id', lieuId).single();
+        if (error) throw error;
+        currentLieuId = lieu.id;
+        currentLieuData = lieu;
+
+        document.getElementById('detail-nom').textContent = lieu.nom || '(sans nom)';
+        document.getElementById('detail-ville-type').textContent = [lieu.ville || lieu.adresse, lieu.type_lieu].filter(Boolean).join(' — ');
+
+        const rows = [];
+        const addRow = (label, value) => { if (value !== null && value !== undefined && value !== '') rows.push(`<div class="info-row"><span class="info-label">${escapeHtml(label)}</span><span class="info-value">${value}</span></div>`); };
+        addRow('Adresse', escapeHtml(lieu.adresse));
+        addRow('Orga', lieu.nom_orga ? escapeHtml(lieu.nom_orga) + (lieu.est_asso ? ' (asso)' : '') + (lieu.gere_uniquement_par_orga ? ' — gère uniquement ce lieu' : '') : null);
+        addRow('Contact', lieu.contact_mail ? `<a href="mailto:${escapeHtml(lieu.contact_mail)}">${escapeHtml(lieu.contact_mail)}</a>` : null);
+        addRow('Téléphone', lieu.contact_tel ? `<a href="tel:${escapeHtml(lieu.contact_tel.replace(/\s+/g,''))}">${escapeHtml(lieu.contact_tel)}</a>` : null);
+        addRow('Réseaux sociaux', lieu.reseaux_sociaux ? `<a href="${escapeHtml(lieu.reseaux_sociaux)}" target="_blank" rel="noopener">${escapeHtml(lieu.reseaux_sociaux)}</a>` : null);
+        addRow('Programmateur', lieu.programmateur ? escapeHtml(lieu.programmateur) : null);
+        addRow('Sono', lieu.sono_fournie ? 'Fournie' : 'Non fournie');
+        addRow('Backline', lieu.backline_disponible ? escapeHtml(lieu.backline_detail || 'Disponible') : 'Non disponible');
+        addRow('Technicien', lieu.technicien ? 'Oui' : 'Non');
+        addRow('Accès', lieu.acces_dechargement ? escapeHtml(lieu.acces_dechargement) : null);
+        addRow('Hébergement', lieu.hebergement ? 'Oui' : 'Non');
+        addRow('Repas', lieu.repas ? 'Oui' : 'Non');
+        addRow('Capacité', lieu.capacite || null);
+        document.getElementById('detail-info-rows').innerHTML = rows.join('');
+
+        const historique = (lieu.avis || []).filter(a => !a.supprime).sort((a, b) => new Date(b.cree_le) - new Date(a.cree_le));
+        if (historique.length === 0) {
+          document.getElementById('detail-historique').innerHTML = '<p class="history-note">Aucun passage enregistré pour l\'instant.</p>';
+        } else {
+          document.getElementById('detail-historique').innerHTML = historique.map(a => {
+            const vClass = a.verdict === 'Vas-y fonce !' ? 'green' : (a.verdict === 'À boycotter' ? 'red' : 'none');
+            const cachets = (a.type_cachet && a.type_cachet.length) ? a.type_cachet.join(', ') : null;
+            const meta = [
+              a.qui_a_initie ? `Contact initié par : ${escapeHtml(a.qui_a_initie)}` : null,
+              cachets ? `Cachet : ${escapeHtml(cachets)}` : null,
+              (a.nombre_groupes_soiree !== null && a.nombre_groupes_soiree !== undefined) ? `${a.nombre_groupes_soiree} groupe(s) dans la soirée` : null
+            ].filter(Boolean).join(' · ');
+            // On ne peut supprimer un commentaire que pendant la session où il a été créé
+            const peutSupprimer = sessionAvisIds.has(a.id);
+            return `<div class="history-entry">
+              <div class="history-header">
+                <span class="history-date">${escapeHtml(formatDateFr(a.date_passage))}</span>
+                ${a.verdict ? `<span class="history-verdict ${vClass}">${escapeHtml(a.verdict)}</span>` : ''}
+              </div>
+              ${meta ? `<p class="history-note" style="color:#22c55e99; margin-bottom:4px;">${meta}</p>` : ''}
+              ${a.conseils ? `<p class="history-note">${escapeHtml(a.conseils)}</p>` : ''}
+              ${peutSupprimer ? `<button type="button" class="delete-avis-btn" data-avis-id="${a.id}" style="margin-top:6px; background:none; border:none; color:#ef4444; font-size:11px; text-decoration:underline; cursor:pointer; padding:0;">Supprimer ce commentaire</button>` : ''}
+            </div>`;
+          }).join('');
+        }
+        document.getElementById('detail-actions').style.display = 'block';
+      } catch (e) {
+        document.getElementById('detail-nom').textContent = 'Erreur de chargement';
+        document.getElementById('detail-historique').innerHTML = `<p class="history-note">${escapeHtml(e.message || 'erreur inconnue')}</p>`;
+      }
+    }
+    // Suppression d'un commentaire (avis) individuel : uniquement possible pendant la session où il a été créé
+    document.getElementById('detail-historique').addEventListener('click', async (e) => {
+      const btn = e.target.closest('.delete-avis-btn');
+      if (!btn) return;
+      if (confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?')) {
+        try {
+          const { error } = await db.from('avis').update({ supprime: true }).eq('id', btn.dataset.avisId);
+          if (error) throw error;
+          sessionAvisIds.delete(btn.dataset.avisId);
+          resultsDirty = true;
+          if (currentLieuId) renderDetail(currentLieuId);
+        } catch (err) {
+          alert('Erreur : ' + (err.message || 'échec de la suppression'));
+        }
+      }
+    });
+    function calculerVerdictGlobal(avisList) {
+      const actifs = (avisList || []).filter(a => !a.supprime);
+      const fonce = actifs.filter(a => a.verdict === 'Vas-y fonce !').length;
+      const boycotte = actifs.filter(a => a.verdict === 'À boycotter').length;
+      if (fonce === 0 && boycotte === 0) return 'none';
+      return fonce > boycotte ? 'green' : (boycotte > fonce ? 'red' : 'none');
+    }
+    function dernierQuiAInitie(avisList) {
+      const actifs = (avisList || []).filter(a => !a.supprime && a.cree_le);
+      if (actifs.length === 0) return null;
+      actifs.sort((a, b) => new Date(b.cree_le) - new Date(a.cree_le));
+      return actifs[0].qui_a_initie;
+    }
+    function distanceKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+    function renderResults(lieux, refPoint) {
+      const list = document.getElementById('results-list');
+      const statusEl = document.getElementById('results-status');
+      if (!lieux || lieux.length === 0) {
+        list.innerHTML = '';
+        statusEl.textContent = 'Aucun lieu trouvé.';
+        return;
+      }
+      if (refPoint) {
+        lieux = lieux.map(l => ({ ...l, _distance: (l.latitude != null && l.longitude != null) ? distanceKm(refPoint.lat, refPoint.lon, l.latitude, l.longitude) : null }));
+        lieux.sort((a, b) => (a._distance ?? Infinity) - (b._distance ?? Infinity));
+        statusEl.textContent = lieux.length + ' lieu(x) — triés du plus proche au plus loin (à vol d\'oiseau)';
+      } else {
+        statusEl.textContent = lieux.length + ' lieu(x) trouvé(s) — les plus récents d\'abord';
+      }
+      list.innerHTML = lieux.map(lieu => {
+        const verdict = calculerVerdictGlobal(lieu.avis);
+        const initiateur = dernierQuiAInitie(lieu.avis);
+        let lieuDisplay = lieu.ville || lieu.adresse || 'Ville non renseignée';
+        if (lieu._distance != null) lieuDisplay += ' — ' + Math.round(lieu._distance) + ' km';
+        else if (refPoint) lieuDisplay += ' — distance inconnue (adresse non géocodée)';
+        return `<button type="button" class="result-card" data-lieu-id="${lieu.id}">
+          <div class="result-info">
+            <span class="result-name">${escapeHtml(lieu.nom || '(sans nom)')}</span>
+            <span class="result-meta">${escapeHtml(lieuDisplay)}</span>
+          </div>
+          ${initiateur ? `<span class="result-badge">${escapeHtml(initiateur)}</span>` : ''}
+          <span class="verdict-dot ${verdict}"></span>
+        </button>`;
+      }).join('');
+    }
+    // Lit l'état actuel du panneau de filtres
+    function getActiveFilters() {
+      const vals = (sel) => Array.from(document.querySelectorAll(sel + ' input:checked')).map(c => c.value);
+      return {
+        typeLieu: vals('.filtre-type-lieu'),
+        verdict: vals('.filtre-verdict'),
+        cachet: vals('.filtre-cachet'),
+        sono: document.getElementById('filtre-sono').checked,
+        backline: document.getElementById('filtre-backline').checked,
+        technicien: document.getElementById('filtre-technicien').checked,
+        hebergement: document.getElementById('filtre-hebergement').checked,
+        repas: document.getElementById('filtre-repas').checked,
+        asso: document.getElementById('filtre-asso').checked,
+        orgaUnique: document.getElementById('filtre-orga-unique').checked
+      };
+    }
+    function countActiveFilters(f) {
+      return f.typeLieu.length + f.verdict.length + f.cachet.length
+        + (f.sono ? 1 : 0) + (f.backline ? 1 : 0) + (f.technicien ? 1 : 0)
+        + (f.hebergement ? 1 : 0) + (f.repas ? 1 : 0) + (f.asso ? 1 : 0) + (f.orgaUnique ? 1 : 0);
+    }
+    function updateFiltresBadge() {
+      const n = countActiveFilters(getActiveFilters());
+      document.getElementById('filtres-count').textContent = n > 0 ? `(${n})` : '';
+    }
+    document.getElementById('btn-toggle-filtres').addEventListener('click', () => {
+      const panel = document.getElementById('panel-filtres');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    });
+    document.getElementById('btn-reset-filtres').addEventListener('click', () => {
+      document.querySelectorAll('#panel-filtres input[type=checkbox]').forEach(c => { c.checked = false; });
+      updateFiltresBadge();
+      fetchResults(searchInput.value, searchRefPoint);
+    });
+    document.querySelectorAll('#panel-filtres input[type=checkbox]').forEach(c => {
+      c.addEventListener('change', () => {
+        updateFiltresBadge();
+        fetchResults(searchInput.value, searchRefPoint);
+      });
+    });
+
+    async function fetchResults(query, refPoint) {
+      const statusEl = document.getElementById('results-status');
+      statusEl.textContent = 'Chargement...';
+      try {
+        const f = getActiveFilters();
+        let req = db.from('lieux')
+          .select('id, nom, adresse, ville, type_lieu, latitude, longitude, sono_fournie, backline_disponible, technicien, hebergement, repas, est_asso, gere_uniquement_par_orga, avis(qui_a_initie, verdict, type_cachet, supprime, cree_le)')
+          .eq('supprime', false)
+          .order('cree_le', { ascending: false })
+          .limit(refPoint ? 200 : 30);
+        const q = (query || '').trim();
+        if (q.length > 0 && !refPoint) {
+          const safe = q.replace(/[%,]/g, '');
+          req = req.or(`nom.ilike.%${safe}%,adresse.ilike.%${safe}%,ville.ilike.%${safe}%,nom_orga.ilike.%${safe}%`);
+        }
+        if (f.typeLieu.length > 0) req = req.in('type_lieu', f.typeLieu);
+        if (f.sono) req = req.eq('sono_fournie', true);
+        if (f.backline) req = req.eq('backline_disponible', true);
+        if (f.technicien) req = req.eq('technicien', true);
+        if (f.hebergement) req = req.eq('hebergement', true);
+        if (f.repas) req = req.eq('repas', true);
+        if (f.asso) req = req.eq('est_asso', true);
+        if (f.orgaUnique) req = req.eq('gere_uniquement_par_orga', true);
+
+        const { data, error } = await req;
+        if (error) throw error;
+
+        // Filtres verdict/cachet : calculés à partir des avis, donc appliqués côté client après récupération
+        let filtered = data || [];
+        if (f.verdict.length > 0) {
+          filtered = filtered.filter(l => f.verdict.includes(calculerVerdictGlobal(l.avis)));
+        }
+        if (f.cachet.length > 0) {
+          filtered = filtered.filter(l => (l.avis || []).some(a => !a.supprime && (a.type_cachet || []).some(c => f.cachet.includes(c))));
+        }
+        renderResults(filtered, refPoint);
+      } catch (e) {
+        statusEl.textContent = 'Erreur de recherche : ' + (e.message || 'inconnue');
+      }
+    }
+    // Recherche déclenchée à la frappe (avec un léger délai pour éviter trop de requêtes)
+    let searchDebounce;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => fetchResults(searchInput.value, searchRefPoint), 350);
+    });
+    // Chargement initial des résultats (les plus récents lieux)
+    fetchResults('');
+    // Bouton "Actualiser" : relance la recherche en cours (texte tapé ou ville choisie)
+    document.getElementById('btn-refresh-results').addEventListener('click', () => {
+      fetchResults(searchInput.value, searchRefPoint);
+    });
+    // Ouvrir la fiche complète au clic sur un résultat (délégation, car les cartes sont générées dynamiquement)
+    document.getElementById('results-list').addEventListener('click', (e) => {
+      const card = e.target.closest('.result-card');
+      if (!card) return;
+      document.getElementById('detail-trash-banner').style.display = 'none';
+      showScreen('detail');
+      renderDetail(card.dataset.lieuId);
+    });
+  </script>
+</body>
+</html>
